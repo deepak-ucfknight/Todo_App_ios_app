@@ -28,14 +28,11 @@ class CategoryViewController: SwipeTableViewController {
         tableView.rowHeight = 80.0
         
         tableView.separatorStyle = .none
-        
-        loadItems()
-        
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        
+        loadItems()
         
         if let navbarColor = FlatRed().lighten(byPercentage: CGFloat(0.5)) {
         
