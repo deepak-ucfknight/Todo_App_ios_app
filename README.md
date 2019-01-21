@@ -12,4 +12,9 @@ SwipeCells
 
 Operations Provided - CRUD with persistent storage using Core data and Realm.
 
-![alt text](http://url/to/img.png)
+Master Screen
+
+![alt text](https://github.com/deepak-ucfknight/Todo_App_ios_app/blob/master/Screen%20Shot%202019-01-21%20at%206.10.31%20PM.png)
+
+Sub View of each category in master screen
+
