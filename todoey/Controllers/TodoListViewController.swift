@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
     
@@ -18,12 +19,14 @@ class TodoListViewController: SwipeTableViewController {
     var selectedCategory : Categories?    {
         didSet {
             loadItems()
+            tableView.separatorStyle = .none
         }
     }
     
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
     
    
+    @IBOutlet weak var searchBarOutlet: UISearchBar!
     
     
     override func viewDidLoad() {
@@ -33,7 +36,42 @@ class TodoListViewController: SwipeTableViewController {
         
          tableView.rowHeight = 80.0
         
+       
+        
         // Do any additional setup after loading the view, typically from a nib.
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
+        if let colorHex = selectedCategory?.cellColorCode {
+            
+            title = selectedCategory!.name
+            
+            
+            guard let navBar = navigationController?.navigationBar else {fatalError("Navigation Controller does not exist")}
+            
+            if let navbarcolor = UIColor(hexString : colorHex) {
+            
+                navBar.barTintColor = navbarcolor
+                
+                navBar.tintColor = ContrastColorOf(navbarcolor, returnFlat: true)
+                
+                navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navbarcolor, returnFlat: true)]
+                
+                searchBarOutlet.barTintColor = navbarcolor
+            }
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        
+        guard  let OriginalColor =  FlatRed().lighten(byPercentage: CGFloat(0.5)) else {fatalError()}
+        
+        navigationController?.navigationBar.barTintColor = OriginalColor
+        
+        navigationController?.navigationBar.tintColor = ContrastColorOf(OriginalColor, returnFlat: true)
+        
+        navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(OriginalColor, returnFlat: true)]
     }
     
     //table view datasource
@@ -51,6 +89,12 @@ class TodoListViewController: SwipeTableViewController {
             cell.textLabel?.text = item.title
             
             cell.accessoryType = item.done ? .checkmark : .none
+            
+            if let color = UIColor(hexString: item.cellColorCode)?.darken(byPercentage: CGFloat(Double(indexPath.row) * 0.5) / CGFloat(items!.count)) {
+            
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
             
         } else {
             
@@ -98,6 +142,7 @@ class TodoListViewController: SwipeTableViewController {
                             newItem.title = textField.text!
                             newItem.done = false
                             newItem.dateCreated = Date()
+                            newItem.cellColorCode = self.selectedCategory?.cellColorCode ?? UIColor.white.hexValue()
                             currentCategory.items.append(newItem)
                             self.tableView.reloadData()
                         }

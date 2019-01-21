@@ -1,5 +1,5 @@
 //
-//  Categories.swift
+//  CellColor.swift
 //  todoey
 //
 //  Created by Deepak Balaji on 1/21/19.
@@ -9,9 +9,7 @@
 import Foundation
 import RealmSwift
 
-class Categories : CellColor {
-    @objc dynamic var name : String = ""
-    let items = List<Items>()
-    
-    
+class CellColor : Object {
+    @objc dynamic var cellColorCode : String = UIColor.white.hexValue()
 }
+

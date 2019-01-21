@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 
 class CategoryViewController: SwipeTableViewController {
@@ -18,6 +19,7 @@ class CategoryViewController: SwipeTableViewController {
     
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
 
+    @IBOutlet weak var mainSearchBarOutlet: UISearchBar!
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -25,8 +27,27 @@ class CategoryViewController: SwipeTableViewController {
         
         tableView.rowHeight = 80.0
         
+        tableView.separatorStyle = .none
+        
         loadItems()
         
+        
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
+        if let navbarColor = FlatRed().lighten(byPercentage: CGFloat(0.5)) {
+        
+            navigationController?.navigationBar.barTintColor = navbarColor
+            
+            navigationController?.navigationBar.tintColor = ContrastColorOf(navbarColor, returnFlat: true)
+            
+             navigationController?.navigationBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navbarColor, returnFlat: true)]
+            
+            mainSearchBarOutlet.barTintColor = navbarColor
+            
+        }
     }
 
     
@@ -44,6 +65,8 @@ class CategoryViewController: SwipeTableViewController {
                 let newitem = Categories()
                 
                 newitem.name = textField.text!
+                
+                newitem.cellColorCode = UIColor.randomFlat.hexValue()
                 
                 self.saveData(category: newitem)
     
@@ -78,6 +101,10 @@ class CategoryViewController: SwipeTableViewController {
         
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
         
+        cell.backgroundColor =  UIColor(hexString: categories?[indexPath.row].cellColorCode ?? UIColor.white.hexValue())
+        
+         cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)
+        
         return cell
         
     }
@@ -87,7 +114,6 @@ class CategoryViewController: SwipeTableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
       
         performSegue(withIdentifier: "goToItems", sender: self)
-        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
