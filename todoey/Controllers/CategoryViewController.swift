@@ -7,13 +7,13 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
     
-    var categories = [Category]()
+    let realm = try! Realm()
     
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var categories : Results<Categories>?
     
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
 
@@ -38,18 +38,12 @@ class CategoryViewController: UITableViewController {
             
             if textField.text != nil || textField.text != "" {
                 
-                let newitem = Category(context: self.context)
+                let newitem = Categories()
                 
                 newitem.name = textField.text!
                 
-                
-                self.categories.append(newitem)
-                
-                self.saveData()
-                
-                for category in self.categories {
-                    print(category.name!)
-                }
+                self.saveData(category: newitem)
+    
             }
             
         }
@@ -71,16 +65,14 @@ class CategoryViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return categories.count
+        return categories?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        let currentcategory = categories[indexPath.row]
-        
-        cell.textLabel?.text = currentcategory.name
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
         
         return cell
         
@@ -104,7 +96,7 @@ class CategoryViewController: UITableViewController {
             
             if let indexPath = tableView.indexPathForSelectedRow {
                 
-                destinationVC.selectedCategory = self.categories[indexPath.row]
+                destinationVC.selectedCategory = self.categories?[indexPath.row]
             }
             
            
@@ -115,9 +107,11 @@ class CategoryViewController: UITableViewController {
     
     //CRUD
     
-    func saveData() {
+    func saveData(category: Categories) {
         do {
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         } catch {
             print(error)
         }
@@ -125,43 +119,39 @@ class CategoryViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadItems(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
-        
-        do {
-            categories = try context.fetch(request)
-        } catch {
-            print(error)
-        }
-        
+    func loadItems() {
+    
+        categories = realm.objects(Categories.self)
+
         tableView.reloadData()
     }
     
     
 }
 
-extension CategoryViewController: UISearchBarDelegate {
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
-        
-        request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
-        
-        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        
-        loadItems(with: request)
-        
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchBar.text?.count == 0 {
-            
-            loadItems()
-            
-            DispatchQueue.main.async {
-                searchBar.resignFirstResponder()
-            }
-            
-        }
-    }
-}
+//extension CategoryViewController: UISearchBarDelegate {
+//
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//
+//        let request : NSFetchRequest<Category> = Category.fetchRequest()
+//
+//        request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchBar.text!)
+//
+//        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+//
+//        loadItems(with: request)
+//
+//    }
+//
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        if searchBar.text?.count == 0 {
+//
+//            loadItems()
+//
+//            DispatchQueue.main.async {
+//                searchBar.resignFirstResponder()
+//            }
+//
+//        }
+//    }
+//}
