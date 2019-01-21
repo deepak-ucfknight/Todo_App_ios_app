@@ -90,10 +90,12 @@ class TodoListViewController: SwipeTableViewController {
             
             cell.accessoryType = item.done ? .checkmark : .none
             
+            
             if let color = UIColor(hexString: item.cellColorCode)?.darken(byPercentage: CGFloat(Double(indexPath.row) * 0.5) / CGFloat(items!.count)) {
             
                 cell.backgroundColor = color
                 cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+                cell.tintColor = ContrastColorOf(color, returnFlat: true)
             }
             
         } else {
